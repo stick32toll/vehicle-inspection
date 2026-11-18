@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Inspection Report & GPS Photo Capture</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1e293b;
+            --bg-color: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-color: #0f172a;
+            --border-color: #cbd5e1;
+            --accent-color: #2563eb;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 30px; }
+            .container { padding: 40px; }
+        }
+
+        .company-header {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .company-header h2 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 18px;
+            letter-spacing: 0.5px;
+        }
+
+        .company-header h1 {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            color: #475569;
+            text-transform: uppercase;
+        }
+
+        @media (min-width: 768px) {
+            .company-header h2 { font-size: 20px; }
+            .company-header h1 { font-size: 16px; }
+        }
+
+        .selector-section {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .selector-section label {
+            font-weight: 600;
+            color: #1e40af;
+            font-size: 14px;
+        }
+
+        .selector-section select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #93c5fd;
+            background: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1e3a8a;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .selector-section select { width: auto; }
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            font-size: 15px;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 6px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 640px) {
+            .grid-2 { grid-template-columns: repeat(2, 1fr); }
+            .grid-3 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 1024px) {
+            .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #334155;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            height: 70px;
+        }
+
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 10px;
+        }
+
+        table.checklist-table {
+            width: 100%;
+            min-width: 550px;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        table.checklist-table th, table.checklist-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        table.checklist-table th {
+            background-color: #f8fafc;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .status-options {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .status-options label {
+            font-weight: normal;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        @media (min-width: 640px) {
+            .upload-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (min-width: 1024px) {
+            .upload-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .upload-card {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .upload-card label.card-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: block;
+            color: #334155;
+        }
+
+        .preview-container {
+            width: 100%;
+            height: 140px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .preview-placeholder {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 6px;
+            margin-top: 5px;
+        }
+
+        .btn-group button {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-group button.cam-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        #cameraModal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        #cameraModal video {
+            width: 100%;
+            max-width: 500px;
+            max-height: 70vh;
+            border-radius: 8px;
+            border: 2px solid white;
+            object-fit: cover;
+        }
+
+        .modal-controls {
+            margin-top: 15px;
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+            justify-content: center;
+        }
+
+        .modal-controls button {
+            flex: 1;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .capture-action-btn { background: #22c55e; color: white; }
+        .close-modal-btn { background: #ef4444; color: white; }
+
+        .declaration-box {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 15px;
+        }
+
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (min-width: 640px) {
+            .signatures-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        .signature-line {
+            border-top: 1px solid var(--border-color);
+            padding-top: 6px;
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .action-bar {
+            text-align: center;
+            margin-top: 25px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        button.print-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            button.print-btn { width: auto; }
+        }
+
+        .print-only { display: none; }
+
+        @media print {
+            body { background: white; padding: 0; margin: 0; font-size: 11px; }
+            .container { box-shadow: none; padding: 5px; max-width: 100%; }
+            .selector-section, .action-bar, input[type="file"], .btn-group { display: none !important; }
+            .print-only { display: block !important; }
+            .print-page {
+                box-sizing: border-box;
+                height: 100vh;
+                page-break-after: always;
+                page-break-inside: avoid;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                text-align: center;
+                padding: 10px;
+                margin: 0;
+            }
+            .print-page:last-child { page-break-after: avoid; }
+            .print-page img {
+                max-width: 100%;
+                max-height: 65vh;
+                object-fit: contain;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                margin-bottom: 8px;
+            }
+            .print-page h2 { font-size: 16px; color: #111; margin: 0 0 6px 0; }
+            .upload-grid { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="company-header">
+        <h2>UNITED INDIA INSURANCE CO. LTD.</h2>
+        <h1>Break-In Pre-Inspection Report & GPS Photo Verification</h1>
+    </div>
+
+    <div class="selector-section">
+        <label for="vehicleTypeSelect">Select Vehicle Type:</label>
+        <select id="vehicleTypeSelect" onchange="updateVehicleTypeConfig()">
+            <option value="car">Car / Four Wheeler</option>
+            <option value="bike">Two Wheeler (Bike / Scooter)</option>
+            <option value="commercial">Commercial Vehicle / Truck</option>
+        </select>
+    </div>
+
+    <div class="form-section">
+        <h3>1. Vehicle & Insured Particulars</h3>
+        <div class="grid-3">
+            <div class="form-group"><label>Name of Insured</label><input type="text" placeholder="Enter insured name"></div>
+            <div class="form-group"><label>Registration No.</label><input type="text" placeholder="e.g., MH01AB1234"></div>
+            <div class="form-group"><label>Contact Number</label><input type="text" placeholder="Phone number"></div>
+            <div class="form-group"><label>Make & Model</label><input type="text" placeholder="Manufacturer & Model"></div>
+            <div class="form-group"><label>Year of Manufacture</label><input type="number" placeholder="YYYY"></div>
+            <div class="form-group"><label id="chassisLabel">Chassis (VIN) No.</label><input type="text" placeholder="Chassis number"></div>
+            <div class="form-group"><label>Engine Number</label><input type="text" placeholder="Engine number"></div>
+            <div class="form-group"><label>Odometer Reading (km)</label><input type="text" placeholder="Current km reading"></div>
+            <div class="form-group">
+                <label>Fuel Type</label>
+                <select>
+                    <option>Petrol</option><option>Diesel</option><option>CNG / LPG</option><option>Electric (EV)</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Previous Insurer</label><input type="text" placeholder="Insurance company name"></div>
+            <div class="form-group"><label>Previous Policy No.</label><input type="text" placeholder="Policy number"></div>
+            <div class="form-group"><label>Policy Expiry Date</label><input type="date"></div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>2. Detailed Visual & Physical Condition Checklist</h3>
+        <div class="table-responsive">
+            <table class="checklist-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Item / Component</th>
+                        <th style="width: 35%;">Condition Status</th>
+                        <th style="width: 35%;">Existing Damage / Remarks</th>
+                    </tr>
+                </thead>
+                <tbody id="checklistBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>3. Mandatory Inspection Photos Verification</h3>
+        <p style="font-size: 13px; color: #64748b; margin-top: 0;">Capture live using device camera (with transparent GPS & timestamp overlay) or upload files.</p>
+        <div class="upload-grid" id="uploadGrid"></div>
+    </div>
+
+    <div class="form-section">
+        <h3>4. Surveyor Assessment & Final Recommendation</h3>
+        <div class="grid-2">
+            <div class="form-group">
+                <label>Overall Status Recommendation</label>
+                <select>
+                    <option>Recommended for Acceptance</option>
+                    <option>Recommended with Exclusions</option>
+                    <option>Rejected / Unfit for Insurance</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Inspection Date & Time</label>
+                <input type="datetime-local">
+            </div>
+        </div>
+        <div class="form-group" style="margin-top: 12px;">
+            <label>Excluded Pre-existing Damages / Remarks</label>
+            <textarea placeholder="Note specific scratch, dent, or broken parts exclusions..."></textarea>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h3>5. Declarations & Signatures</h3>
+        <div class="declaration-box">
+            I/We hereby declare that the vehicle details provided above are true and complete. The vehicle was inspected in my/our presence, and all existing damages/scratches have been correctly noted by the surveyor. I/We understand and agree that any damage/accident occurring prior to the date and time of this inspection or any noted pre-existing damage shall stand excluded from coverage under the proposed insurance policy with United India Insurance Co. Ltd.
+        </div>
+        <div class="signatures-grid">
+            <div class="signature-line">Signature of Vehicle Owner / Proposer</div>
+            <div class="signature-line">Signature of Empanelled Inspector / Surveyor</div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <button class="print-btn" onclick="window.print()">🖨️ Print / Save Complete Report as PDF</button>
+    </div>
+</div>
+
+<!-- Camera Modal -->
+<div id="cameraModal">
+    <video id="cameraStream" autoplay playsinline></video>
+    <div class="modal-controls">
+        <button class="capture-action-btn" onclick="capturePhotoFromCamera()">📸 Take Photo</button>
+        <button class="close-modal-btn" onclick="closeCameraModal()">Cancel</button>
+    </div>
+</div>
+
+<div class="print-only" id="printContainer"></div>
+
+<script>
+    const vehicleConfigs = {
+        car: {
+            chassisLabel: "Chassis (VIN) No.",
+            checklist: ["Front Bumper & Grille", "Rear Bumper", "Bonnet / Hood", "Dickey / Boot Lid", "Front Windshield Glass", "Rear & Side Window Glass", "Headlights (L & R)", "Tail Lights & Indicators", "LH Side Panels & Doors", "RH Side Panels & Doors", "Tyres, Rims & Underbody"],
+            photos: ["Vehicle Front View (Full)", "Vehicle Rear View (Full)", "Vehicle Left Side Profile", "Vehicle Right Side Profile", "Engine Compartment", "Chassis Number Imprint", "Odometer / Cluster Reading", "Windshield Close-up", "Pre-existing Damage (if any)", "Registration Certificate (RC)"]
+        },
+        bike: {
+            chassisLabel: "Chassis / Frame No.",
+            checklist: ["Front Mudguard & Cowl", "Rear Mudguard / Tail Section", "Fuel Tank", "Handlebar & Control Levers", "Headlight & Visor", "Tail Light & Indicators", "LH Side Fairing / Body Panel", "RH Side Fairing / Body Panel", "Engine & Silencer Guard", "Tyres & Alloy Wheels / Spokes"],
+            photos: ["Bike Front View", "Bike Rear View", "Bike Left Profile", "Bike Right Profile", "Engine & Silencer Area", "Chassis / Frame Number Punching", "Odometer / Speedometer Cluster", "Pre-existing Scratch / Dent Area", "Registration Certificate (RC)"]
+        },
+        commercial: {
+            chassisLabel: "Chassis (VIN) No.",
+            checklist: ["Cabin Front Bumper & Grill", "Cabin Windshield & Wipers", "LH Cabin Door & Steps", "RH Cabin Door & Steps", "Cargo Body / Load Deck / Container", "Headlights & Fog Lamps", "Tail Lights & Reflectors", "Tyres (All Axles & Spare)", "Chassis Frame & Leaf Springs", "Underbody & Propeller Shaft"],
+            photos: ["Commercial Vehicle Front View", "Commercial Vehicle Rear View", "Left Side Profile", "Right Side Profile", "Cargo Deck / Load Body Area", "Engine Bay", "Chassis Number Punching Plate", "Odometer / Dashboard Cluster", "Cabin Interior", "Registration Certificate (RC)"]
+        }
+    };
+
+    let activeCardId = null;
+    let activePhotoTitle = null;
+    let mediaStream = null;
+    let currentCoords = "GPS: Fetching...";
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                currentCoords = `GPS: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
+            },
+            () => {
+                currentCoords = "GPS: Unavailable";
+            },
+            { enableHighAccuracy: true }
+        );
+    }
+
+    function updateVehicleTypeConfig() {
+        const type = document.getElementById('vehicleTypeSelect').value;
+        const config = vehicleConfigs[type];
+
+        document.getElementById('chassisLabel').innerText = config.chassisLabel;
+
+        const checklistBody = document.getElementById('checklistBody');
+        checklistBody.innerHTML = '';
+        config.checklist.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${index + 1}.</strong> ${item}</td>
+                <td>
+                    <div class="status-options">
+                        <label><input type="radio" name="check_${index}" value="OK" checked> OK</label>
+                        <label><input type="radio" name="check_${index}" value="Scratch/Dent"> Scratch/Dent</label>
+                        <label><input type="radio" name="check_${index}" value="Broken"> Broken</label>
+                    </div>
+                </td>
+                <td><input type="text" placeholder="Note remarks..." style="width: 100%; padding: 6px; font-size: 13px; box-sizing: border-box;"></td>
+            `;
+            checklistBody.appendChild(row);
+        });
+
+        const uploadGrid = document.getElementById('uploadGrid');
+        uploadGrid.innerHTML = '';
+        document.getElementById('printContainer').innerHTML = '';
+
+        config.photos.forEach((title, index) => {
+            const cardId = `photo_${type}_${index}`;
+            const card = document.createElement('div');
+            card.className = 'upload-card';
+            card.innerHTML = `
+                <label class="card-title">${index + 1}. ${title}</label>
+                <div class="preview-container" id="preview_${cardId}">
+                    <span class="preview-placeholder">No image selected</span>
+                    <img id="img_${cardId}" alt="${title}">
+                </div>
+                <div class="btn-group">
+                    <button class="cam-btn" onclick="openCameraModal('${cardId}', '${title}')">📷 Live Cam</button>
+                    <button onclick="document.getElementById('input_${cardId}').click()">📁 Upload</button>
+                </div>
+                <input type="file" accept="image/*" id="input_${cardId}" style="display:none;" onchange="handleFileUpload(event, '${cardId}', '${title}')">
+            `;
+            uploadGrid.appendChild(card);
+        });
+    }
+
+    async function openCameraModal(cardId, title) {
+        activeCardId = cardId;
+        activePhotoTitle = title;
+        const modal = document.getElementById('cameraModal');
+        const video = document.getElementById('cameraStream');
+        modal.style.display = 'flex';
+
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: 'environment' }, 
+                audio: false 
+            });
+            video.srcObject = mediaStream;
+        } catch (err) {
+            alert("Unable to access camera. Please check camera permissions.");
+            closeCameraModal();
+        }
+    }
+
+    function closeCameraModal() {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+        document.getElementById('cameraModal').style.display = 'none';
+    }
+
+    function capturePhotoFromCamera() {
+        const video = document.getElementById('cameraStream');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        const ctx = canvas.getContext('2d');
+
+        // Draw camera frame
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Watermark formatting & positioning requirements:
+        // Transparent background, GPS bottom-left, Date & Time bottom-right
+        const now = new Date();
+        const dateStr = now.toLocaleDateString();
+        const timeStr = now.toLocaleTimeString();
+        const dateTimeStr = `Time: ${dateStr}, ${timeStr}`;
+        const gpsStr = currentCoords;
+
+        const fontSize = Math.max(16, Math.floor(canvas.width * 0.022));
+        ctx.font = `bold ${fontSize}px sans-serif`;
+
+        const paddingX = 16;
+        const paddingY = 12;
+        const boxHeight = fontSize + (paddingY * 2);
+        const boxY = canvas.height - boxHeight - 20;
+
+        // Draw subtle transparent background box across the bottom
+        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+        ctx.fillRect(20, boxY, canvas.width - 40, boxHeight);
+
+        // Draw GPS on Bottom Left
+        ctx.fillStyle = "#ffffff";
+        ctx.textBaseline = "middle";
+        ctx.textAlign = "left";
+        ctx.fillText(gpsStr, 20 + paddingX, boxY + (boxHeight / 2));
+
+        // Draw Date & Time on Bottom Right
+        ctx.textAlign = "right";
+        ctx.fillText(dateTimeStr, canvas.width - 20 - paddingX, boxY + (boxHeight / 2));
+
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+        applyPhotoToCard(activeCardId, activePhotoTitle, dataUrl);
+        closeCameraModal();
+    }
+
+    function handleFileUpload(event, cardId, title) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                applyPhotoToCard(cardId, title, e.target.result);
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function applyPhotoToCard(cardId, title, dataUrl) {
+        const imgElement = document.getElementById(`img_${cardId}`);
+        const placeholder = document.querySelector(`#preview_${cardId} .preview-placeholder`);
+
+        if(imgElement && placeholder) {
+            imgElement.src = dataUrl;
+            imgElement.style.display = 'block';
+            placeholder.style.display = 'none';
+        }
+        updatePrintPage(cardId, title, dataUrl);
+    }
+
+    function updatePrintPage(cardId, title, dataUrl) {
+        let printContainer = document.getElementById('printContainer');
+        let printPage = document.getElementById(`print_${cardId}`);
+        
+        if (!printPage) {
+            printPage = document.createElement('div');
+            printPage.className = 'print-page';
+            printPage.id = `print_${cardId}`;
+            printContainer.appendChild(printPage);
+        }
+
+        printPage.innerHTML = `
+            <div style="font-size: 13px; color: #2563eb; font-weight: bold; margin-bottom: 4px;">UNITED INDIA INSURANCE CO. LTD. — PHOTO INSPECTION APPENDIX</div>
+            <h2>${title}</h2>
+            <img src="${dataUrl}" alt="${title}">
+            <div style="font-size: 11px; color: #64748b; margin-top: 4px;">Verified & Captured during Pre-Inspection Assessment</div>
+        `;
+    }
+
+    window.onload = function() {
+        updateVehicleTypeConfig();
+    };
+</script>
+
+</body>
+</html>
